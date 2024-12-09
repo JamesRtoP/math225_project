@@ -54,6 +54,19 @@ private:
 	double ydir;
 	double zdir;
 public:
+	vector()
+	{
+
+		this->xdir = 0;
+		this->ydir = 0;
+		this->zdir = 0;
+	}
+	vector(double newXDir, double newYDir, double newZDir)
+	{
+		this->xdir = newXDir;
+		this->ydir = newYDir;
+		this->zdir = newZDir;
+	}
 	double getXDir(void) const
 	{
 		return this->xdir;
@@ -86,50 +99,38 @@ double dotProduct(vector one, vector two)
 
 }
 
-class ray : vector
+class ray
 {
 private:
+	vector dir;
+	point origin;
 	//x,y,z for start point
-	double x;
-	double y;
-	double z;
-	//
 	double t;//length of vector ie t[x,z,y]
 public:
-	void setX(double newX)
-	{
-		this->x = newX;
-	}
-	void setY(double newY)
-	{
-		this->y = newY;
-	}
-	void setZ(double newZ) 
-	{
-		this->z = newZ;
-	}
-	void setT(double newT) 
+	void setT(double newT)
 	{
 		this->t = newT;
 	}
-	
-	double getX(void) const
+	void setDir(vector newDir)
 	{
-		return this->x;
+		this->dir = newDir;
 	}
-	double getY(void) const
+	void setOrigin(point newOrigin)
 	{
-		return this->y;
-	}
-	double getZ(void) const
-	{
-		return this->z;
+		this->origin = newOrigin;
 	}
 	double getT(void) const
 	{
 		return this->t;
 	}
-
+	point getOrigin(void)
+	{
+		return this->origin;
+	}
+	vector getDir(void)
+	{	
+		return this->dir;
+	}
 
 };
 
@@ -140,8 +141,103 @@ std::ostream& operator<< (std::ostream& stream, const vector & printMe)
 	return stream;
 }
 
+enum lightType
+{
+	AMBIENT, DIRECTIONAL, POINT
+};
 
-class plane//restricted plane //using equation a(x-x1)+b(y-y1)+c(z-z1) = 0
+class light
+{
+private:
+protected:
+	double power;
+	lightType type;
+public:
+	double getPower(void)
+	{
+		return this->power;
+	}	
+	
+	void setPower(double newPower)
+	{
+		this->power = newPower;
+	}
+
+	lightType getType(void)
+	{
+		return this->type;
+	}
+
+	light(double newPower, lightType newType)
+	{
+		this->power = newPower;
+		this->type = newType;
+	}
+};
+
+class ambientLight : public light
+{
+private:
+protected:
+public:
+	ambientLight(double newPower, lightType newType):light(newPower, newType){}
+	
+};
+
+class directionalLight : public light
+{
+private:
+	vector dir;
+protected:
+public:
+	vector getDir (void)
+	{
+		return this->dir;
+	}
+
+	void setDir(vector newDir)
+	{
+		this->dir = newDir;
+	}
+
+};
+
+vector fromTwoPoints(point from, point to)
+{
+	vector returnVector;
+	returnVector.setXDir(to.getx()-from.getx());
+	returnVector.setYDir(to.gety()-from.gety());
+	returnVector.setZDir(to.getz()-from.getz());
+	return returnVector;
+}
+enum Type
+{
+	SPHERE, PLANE, RESTRICTEDPLANE
+
+};
+
+class intersectable
+{
+private:
+protected:
+	sf::Color color;
+	Type type;
+public:
+	virtual double intersects(vector intersector)//pure virtual function
+	{
+	}
+	//virtual double lights(
+	sf::Color getColor(void)
+	{
+		return this->color;
+	}
+	void setColor(sf::Color newColor)
+	{
+		this->color = newColor;
+	}
+};
+
+class plane : public intersectable//restricted plane //using equation a(x-x1)+b(y-y1)+c(z-z1) = 0
 {
 	//int width;
 	//int height;
@@ -161,10 +257,12 @@ public:
 	{
 		this->a = 0;
                 this->b = 0;
-                this->c = 0;
+                this->c = 1;
                 this->x = 0;
                 this->y = 0;
-                this->z = 0;
+                this->z = -5;
+		this->color = sf::Color(0,0,0);
+		this->type = PLANE;
 	}
 	plane(double newA, double newB, double newC)//plane through 0,0,0
 	{
@@ -174,6 +272,8 @@ public:
 		this->x = 0;
 		this->y = 0;
 		this->z = 0;
+		this->color = sf::Color(0,0,0);
+		this->type = PLANE;
 	}
 	plane(double newY) //plane perpindicular to y with the newY being the offset
 	{
@@ -184,6 +284,24 @@ public:
 	{
 		return this->y;
 	}
+
+
+	virtual double intersects(vector intersector)//returns -1 if no possitive intersection
+	{
+		vector normalV(this->a, this->b, this->c);
+		double top = dotProduct(fromTwoPoints(point(0,0,0), point(x,y,z)),normalV);
+		double bottom = dotProduct(intersector,normalV);
+		if(bottom == 0)
+		{
+			return -1;
+		}
+		else
+		{
+			return top/bottom;
+		}
+	}
+
+
 };
 
 class restrictedPlane:plane
@@ -236,38 +354,8 @@ public:
 };
 
 
-vector fromTwoPoints(point from, point to)
-{
-	vector returnVector;
-	returnVector.setXDir(to.getx()-from.getx());
-	returnVector.setYDir(to.gety()-from.gety());
-	returnVector.setZDir(to.getz()-from.getz());
-	return returnVector;
-}
 
-enum Type
-{
-	SPHERE, PLANE, RESTRICTEDPLANE
 
-};
-
-class intersectable
-{
-private:
-protected:
-	sf::Color color;
-	Type type;
-public:
-	virtual double intersects(vector intersector);//pure virtual function
-	sf::Color getColor(void)
-	{
-		return this->color;
-	}
-	void setColor(sf::Color newColor)
-	{
-		this->color = newColor;
-	}
-};
 
 //these functions are both for the quadratic formula
 double outsideTheRootPos(double a, double b, double c, double insideRoot)
@@ -287,7 +375,7 @@ double insideTheRoot(double a, double b, double c)
 	return b*b-4*a*c;
 }
 
-class sphere : intersectable
+class sphere : public intersectable
 {
 private:
 	point center;
@@ -300,6 +388,17 @@ public:
 	{
 		this->center = point(0,10,0);
 		this->radius = 1;
+		this->color = sf::Color(157,136,81);
+		this->type = SPHERE;
+	}
+
+	sphere(point origin, double newRadius)
+	{
+		this->center = origin;
+		this->radius = newRadius;
+		this->color = sf::Color(157,136,81);
+		this->type = SPHERE;
+
 	}
 
 	//asumes the vector start at 0,0 
@@ -357,7 +456,8 @@ public:
 	//copy constructor
 	intersectableNode(intersectableNode& copyMe)//hardcopy of object, points to same location
 	{
-		this->object = new intersectable(*(copyMe.object));
+		//cannont instantiate a new intersectable because intersctable is a pure virtual class
+		//this->object = new intersectable(*(copyMe.object));
 		this->pNext = copyMe.pNext;
 	}
 	//move constructor
@@ -373,7 +473,7 @@ public:
 	//copy assignment operator
 	intersectableNode& operator= (intersectableNode & copyMe)//hardcopy
 	{
-		object = new intersectable(*(copyMe.object));
+		//object = new intersectable(*(copyMe.object));
                 pNext = NULL;
 		return *this;
 	}
@@ -489,7 +589,8 @@ int main(void)
 	
 	restrictedPlane viewPlane;//: = new restrictedPlane();
 				  //
-	sphere omega;
+	sphere omega(point(0,5,0),2);
+	plane floor;
 
 	for(int i = 0; i<rw*rh*4; i+=4)
 	{
@@ -501,29 +602,44 @@ int main(void)
 		int pixelNum = i/4;
 		point onViewPlane = viewPlane.calculatePointFromPixel(pixelNum);
 		vector v = fromTwoPoints(origin, onViewPlane);
-		if(pixelNum==250000)
+		double closestIntersection = -1;
+		bool intersected = false;	
+		
+		closestIntersection = omega.intersects(v);
+		sf::Color intersectionColor = omega.getColor();
+
+		double nextIntersection = floor.intersects(v);
+		if(closestIntersection < 0||(nextIntersection > 0 && nextIntersection < closestIntersection) )
 		{
-			std::cout << onViewPlane << "\t" << v <<std::endl;
+			closestIntersection = nextIntersection;
+			intersectionColor = floor.getColor();
 		}
-		if(v.getZDir() > 0)
+		if(closestIntersection > 0)
 		{
-			pixels[i+0] = 217;
-			pixels[i+1] = 188;
-			pixels[i+2] = 214;
-			pixels[i+3] = 255;
+			intersected = true;
 		}
-		else if(v.getZDir() < 0)
+
+		if(intersected)
 		{
-			pixels[i+0] = 102;
-			pixels[i+1] = 65;
-			pixels[i+2] = 33;
-			pixels[i+3] = 255;
+			/*
+				pixels[i+0] = 102;
+				pixels[i+1] = 65;
+				pixels[i+2] = 33;
+				pixels[i+3] = 255;
+				*/
+			pixels[i + 0] = intersectionColor.r;
+			pixels[i + 1] = intersectionColor.b;
+			pixels[i + 2] = intersectionColor.g;
+			pixels[i + 3] = 255;
+
 		}
 		else
 		{
-
+				pixels[i+0] = 0;
+				pixels[i+1] = 0;
+				pixels[i+2] = 214;
+				pixels[i+3] = 255;
 		}
-
 
 		//last four lines are for debugging only REMOVE 
 		if(pixelNum %(720*2) == 0)
