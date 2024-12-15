@@ -36,7 +36,6 @@ public:
 	{
 		return z;
 	}
-	
 
 };
 
@@ -91,6 +90,22 @@ public:
 	{
 		this->zdir = newzdir;
 	}
+
+
+	vector& operator/(double divisor)
+	{
+		this->xdir /= divisor;
+		this->ydir /= divisor;
+		this->zdir /= divisor;
+		return *this;
+	}
+	vector& operator*(double divisor)
+	{
+		this->xdir *= divisor;
+		this->ydir *= divisor;
+		this->zdir *= divisor;
+		return *this;
+	}
 };
 
 double dotProduct(vector one, vector two)
@@ -98,6 +113,22 @@ double dotProduct(vector one, vector two)
 	return one.getXDir() * two.getXDir() +one.getYDir() * two.getYDir() + one.getZDir() * two.getZDir();	
 
 }
+
+double getMagnitude(vector v)
+{
+	return sqrt(dotProduct(v,v));
+}
+
+vector makeUnitVector(vector v)
+{
+	return v / getMagnitude(v);
+}
+
+point pointFromVector(vector v, double t)
+{
+	return point(v.getXDir()*t, v.getYDir()*t, v.getZDir()*t);
+}
+
 
 class ray
 {
@@ -180,7 +211,9 @@ class ambientLight : public light
 private:
 protected:
 public:
-	ambientLight(double newPower, lightType newType):light(newPower, newType){}
+	ambientLight(double newPower):light(newPower, AMBIENT)
+	{
+	}
 	
 };
 
@@ -196,6 +229,10 @@ public:
 	}
 
 	void setDir(vector newDir)
+	{
+		this->dir = newDir;
+	}
+	directionalLight(double newPower,vector newDir):light(newPower, DIRECTIONAL)
 	{
 		this->dir = newDir;
 	}
@@ -225,8 +262,14 @@ protected:
 public:
 	virtual double intersects(vector intersector)//pure virtual function
 	{
+		return -2;
 	}
-	//virtual double lights(
+	double lights(ambientLight lighting)
+	{
+	}
+	virtual double lights(directionalLight lighting)
+	{
+	}
 	sf::Color getColor(void)
 	{
 		return this->color;
@@ -261,7 +304,7 @@ public:
                 this->x = 0;
                 this->y = 0;
                 this->z = -5;
-		this->color = sf::Color(0,0,0);
+		this->color = sf::Color(155,118,83);
 		this->type = PLANE;
 	}
 	plane(double newA, double newB, double newC)//plane through 0,0,0
@@ -272,7 +315,7 @@ public:
 		this->x = 0;
 		this->y = 0;
 		this->z = 0;
-		this->color = sf::Color(0,0,0);
+		this->color = sf::Color(155,118,83);
 		this->type = PLANE;
 	}
 	plane(double newY) //plane perpindicular to y with the newY being the offset
@@ -388,7 +431,7 @@ public:
 	{
 		this->center = point(0,10,0);
 		this->radius = 1;
-		this->color = sf::Color(157,136,81);
+		this->color = sf::Color(102,255,0);
 		this->type = SPHERE;
 	}
 
@@ -396,7 +439,7 @@ public:
 	{
 		this->center = origin;
 		this->radius = newRadius;
-		this->color = sf::Color(157,136,81);
+		this->color = sf::Color(102,255,0);
 		this->type = SPHERE;
 
 	}
@@ -426,6 +469,22 @@ public:
 			double q2 = outsideTheRootNeg(a,b,c,insideRoot);
 			return std::min(q1,q2);
 		}
+	}
+
+
+	//we have the distance in main as well as the vector, use that to pass in a point
+	virtual double lights(directionalLight lighting, point onCircle)
+	{
+		vector normalDir = fromTwoPoints(this->center, onCircle);
+		vector normalUnit = makeUnitVector(normalDir);
+		double top = dotProduct(lighting.getDir(), normalUnit);
+		double bottom = getMagnitude(lighting.getDir()) + getMagnitude(normalUnit);
+		return top/bottom;
+	}
+
+	virtual double lights(ambientLight lighting)
+	{
+		return lighting.getPower();
 	}
 };
 
@@ -582,7 +641,8 @@ int main(void)
 		}
 	}
 	*/
-
+	ambientLight l1(0.2);
+	directionalLight l2(0.8, vector(0,0,-1));	
 	point origin(0,0,0);
 
 	intersectable* objects;
@@ -605,9 +665,20 @@ int main(void)
 		double closestIntersection = -1;
 		bool intersected = false;	
 		
+		double lightStrength = 1;
+
 		closestIntersection = omega.intersects(v);
 		sf::Color intersectionColor = omega.getColor();
-
+		if(closestIntersection >0)
+		{
+			lightStrength = omega.lights(l1) + omega.lights(l2, pointFromVector(makeUnitVector(v),closestIntersection)); 
+			if(true)
+			{
+			intersectionColor.r = intersectionColor.r *lightStrength;
+			intersectionColor.g = intersectionColor.g *lightStrength;
+			intersectionColor.b = intersectionColor.b *lightStrength;
+			}
+		}
 		double nextIntersection = floor.intersects(v);
 		if(closestIntersection < 0||(nextIntersection > 0 && nextIntersection < closestIntersection) )
 		{
@@ -628,16 +699,16 @@ int main(void)
 				pixels[i+3] = 255;
 				*/
 			pixels[i + 0] = intersectionColor.r;
-			pixels[i + 1] = intersectionColor.b;
-			pixels[i + 2] = intersectionColor.g;
+			pixels[i + 1] = intersectionColor.g;
+			pixels[i + 2] = intersectionColor.b;
 			pixels[i + 3] = 255;
 
 		}
 		else
 		{
-				pixels[i+0] = 0;
-				pixels[i+1] = 0;
-				pixels[i+2] = 214;
+				pixels[i+0] = 135;
+				pixels[i+1] = 206;
+				pixels[i+2] = 235;
 				pixels[i+3] = 255;
 		}
 
