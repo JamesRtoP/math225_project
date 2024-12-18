@@ -403,13 +403,13 @@ public:
 //these functions are both for the quadratic formula
 double outsideTheRootPos(double a, double b, double c, double insideRoot)
 {
-	return (-2 * b + sqrt(insideRoot))/(2*a);
+	return (-1 * b + sqrt(insideRoot))/(2*a);
 
 }
 
 double outsideTheRootNeg(double a, double b, double c, double insideRoot)
 {
-	return (-2 * b + sqrt(insideRoot))/(2*a);
+	return (-1 * b + sqrt(insideRoot))/(2*a);
 
 }
 
@@ -477,7 +477,7 @@ public:
 	{
 		vector normalDir = fromTwoPoints(this->center, onCircle);
 		vector normalUnit = makeUnitVector(normalDir);
-		double top = dotProduct(lighting.getDir(), normalUnit);
+		double top = dotProduct(lighting.getDir()*(-1), normalUnit);
 		double bottom = getMagnitude(lighting.getDir()) + getMagnitude(normalUnit);
 		return top/bottom;
 	}
@@ -671,7 +671,15 @@ int main(void)
 		sf::Color intersectionColor = omega.getColor();
 		if(closestIntersection >0)
 		{
-			lightStrength = omega.lights(l1) + omega.lights(l2, pointFromVector(makeUnitVector(v),closestIntersection)); 
+			//closestIntersection is the t for vector v
+			//pos point on shere
+			point pos = pointFromVector(v,closestIntersection);
+			lightStrength = omega.lights(l1);
+			double dirLight = omega.lights(l2, pos);
+		       	if(dirLight>=0)
+			{
+				lightStrength+=dirLight;
+			}
 			if(true)
 			{
 			intersectionColor.r = intersectionColor.r *lightStrength;
