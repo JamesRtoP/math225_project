@@ -569,6 +569,65 @@ public:
 };
 
 
+intersectableList
+{
+private:
+	intersectableNode* pHead;
+	bool isEmpty(void)
+	{
+		
+		if(this->pHead == NULL)
+		{
+			return true; 
+		}
+		return false;
+	}
+public:
+	intersectableList(void)
+	{
+		this->pHead = NULL;
+	}
+	~intersectableList(void)
+	{
+		intersectableNode* pCur = this->pHead;
+		intersectableNode* pDel = NULL;
+		while(pCur != NULL)
+		{
+			pDel = pCur;
+			pCur = pCur->pNext;
+			delete pDel;
+		}
+	}
+	void insertAtFront(intersectable* newObject)
+	{
+		intersectableNode* pNew = new intersectableNode();
+		pNew->object = newObject;
+		pNew->pNext = this->pHead;
+		this->pHead = pNew->pNext;
+	}
+	intersectableNode* intersects(vector v, double closestIntersection)
+	{
+		intersectableNode* pIntersect* = NULL;
+		intersectableNode* pCur= this->pHead;
+		double newIntersection = 0;
+		double closestIntersection = 0;
+		while(pCur != NULL)
+		{
+			newIntersection = pCur->object->intersects(v);
+			if(newIntersection > 0 && newIntersection < closestIntersection)
+			{
+				newIntersection = closestIntersection;
+				pIntersect = pCur;
+			}
+			pCur = pCur.getPNext();
+		}
+		return pIntersect;
+
+	}
+
+}
+
+
 class one
 {
 private:
@@ -641,86 +700,22 @@ int main(void)
 		}
 	}
 	*/
-	ambientLight l1(0.2);
-	directionalLight l2(0.8, vector(0,0,-1));	
+	ambientLight l1(0.5);
+	directionalLight l2(0.5, vector(0,0,-1));	
 	point origin(0,0,0);
 
 	intersectable* objects;
 	
 	restrictedPlane viewPlane;//: = new restrictedPlane();
 				  //
-	sphere omega(point(0,5,0),2);
+	sphere omega(point(0,5,0),4);
 	plane floor;
+	
+	bool updated = true;
 
-	for(int i = 0; i<rw*rh*4; i+=4)
-	{
-		pixels[i+0] = 255;
-		pixels[i+1] = 255;
-		pixels[i+2] = 255;
-		pixels[i+3] = 255;
-		//vector dir = fromTwoPoints(,origin);
-		int pixelNum = i/4;
-		point onViewPlane = viewPlane.calculatePointFromPixel(pixelNum);
-		vector v = fromTwoPoints(origin, onViewPlane);
-		double closestIntersection = -1;
-		bool intersected = false;	
-		
-		double lightStrength = 1;
-
-		closestIntersection = omega.intersects(v);
-		sf::Color intersectionColor = omega.getColor();
-		if(closestIntersection >0)
-		{
-			//closestIntersection is the t for vector v
-			//pos point on shere
-			point pos = pointFromVector(v,closestIntersection);
-			lightStrength = omega.lights(l1);
-			double dirLight = omega.lights(l2, pos);
-		       	if(dirLight>=0)
-			{
-				lightStrength+=dirLight;
-			}
-			if(true)
-			{
-			intersectionColor.r = intersectionColor.r *lightStrength;
-			intersectionColor.g = intersectionColor.g *lightStrength;
-			intersectionColor.b = intersectionColor.b *lightStrength;
-			}
-		}
-		double nextIntersection = floor.intersects(v);
-		if(closestIntersection < 0||(nextIntersection > 0 && nextIntersection < closestIntersection) )
-		{
-			closestIntersection = nextIntersection;
-			intersectionColor = floor.getColor();
-		}
-		if(closestIntersection > 0)
-		{
-			intersected = true;
-		}
-
-		if(intersected)
-		{
-			/*
-				pixels[i+0] = 102;
-				pixels[i+1] = 65;
-				pixels[i+2] = 33;
-				pixels[i+3] = 255;
-				*/
-			pixels[i + 0] = intersectionColor.r;
-			pixels[i + 1] = intersectionColor.g;
-			pixels[i + 2] = intersectionColor.b;
-			pixels[i + 3] = 255;
-
-		}
-		else
-		{
-				pixels[i+0] = 135;
-				pixels[i+1] = 206;
-				pixels[i+2] = 235;
-				pixels[i+3] = 255;
-		}
 
 		//last four lines are for debugging only REMOVE 
+		/*
 		if(pixelNum %(720*2) == 0)
 		{
 			screen_t.update(pixels);	
@@ -732,10 +727,9 @@ int main(void)
 
 			window.display();
 		}
-	}
+		*/
 	
 
-	screen_t.update(pixels);
 
 
 	sf::Sprite screen_s;
@@ -759,6 +753,82 @@ int main(void)
 					window.close();
 				}
 
+			}
+
+			if(updated)
+			{
+				updated = false;
+
+				
+				for(int i = 0; i<rw*rh*4; i+=4)
+				{
+					pixels[i+0] = 255;
+					pixels[i+1] = 255;
+					pixels[i+2] = 255;
+					pixels[i+3] = 255;
+					//vector dir = fromTwoPoints(,origin);
+					int pixelNum = i/4;
+					point onViewPlane = viewPlane.calculatePointFromPixel(pixelNum);
+					vector v = fromTwoPoints(origin, onViewPlane);
+					double closestIntersection = -1;
+					bool intersected = false;	
+					
+					double lightStrength = 1;
+
+					closestIntersection = omega.intersects(v);
+					sf::Color intersectionColor = omega.getColor();
+					if(closestIntersection >0)
+					{
+						//closestIntersection is the t for vector v
+						//pos point on shere
+						point pos = pointFromVector(v,closestIntersection);
+						lightStrength = omega.lights(l1);
+						double dirLight = omega.lights(l2, pos);
+						if(dirLight>=0)
+						{
+							lightStrength+=dirLight;
+						}
+						if(true)
+						{
+						intersectionColor.r = intersectionColor.r *lightStrength;
+						intersectionColor.g = intersectionColor.g *lightStrength;
+						intersectionColor.b = intersectionColor.b *lightStrength;
+						}
+					}
+					double nextIntersection = floor.intersects(v);
+					if(closestIntersection < 0||(nextIntersection > 0 && nextIntersection < closestIntersection) )
+					{
+						closestIntersection = nextIntersection;
+						intersectionColor = floor.getColor();
+					}
+					if(closestIntersection > 0)
+					{
+						intersected = true;
+					}
+
+					if(intersected)
+					{
+						/*
+							pixels[i+0] = 102;
+							pixels[i+1] = 65;
+							pixels[i+2] = 33;
+							pixels[i+3] = 255;
+							*/
+						pixels[i + 0] = intersectionColor.r;
+						pixels[i + 1] = intersectionColor.g;
+						pixels[i + 2] = intersectionColor.b;
+						pixels[i + 3] = 255;
+
+					}
+					else
+					{
+							pixels[i+0] = 135;
+							pixels[i+1] = 206;
+							pixels[i+2] = 235;
+							pixels[i+3] = 255;
+					}
+				}
+				screen_t.update(pixels);
 			}
 	
 		}
