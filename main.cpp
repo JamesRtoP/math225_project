@@ -264,10 +264,13 @@ public:
 	{
 		return -2;
 	}
-	double lights(ambientLight lighting)
+	virtual double lights(ambientLight lighting)
 	{
 	}
 	virtual double lights(directionalLight lighting)
+	{
+	}
+	virtual double lights(directionalLight lighting, point disAPoint)
 	{
 	}
 	sf::Color getColor(void)
@@ -503,14 +506,17 @@ public:
 	}
 	~intersectableNode(void)//destructor
 	{
+		std::cout << "NodeDestructor" << std::endl;
 		if(object != NULL)
 		{
 			delete object;
 		}
+		/*
 		if(pNext != NULL)
 		{
 			delete pNext;
 		}
+		*/
 	}
 	//copy constructor
 	intersectableNode(intersectableNode& copyMe)//hardcopy of object, points to same location
@@ -552,7 +558,7 @@ public:
 
 	intersectable* getObject(void)
 	{
-		return object;
+		return this->object;
 	}
 	void setObject(intersectable* newObject)
 	{
@@ -569,7 +575,7 @@ public:
 };
 
 
-intersectableList
+class intersectableList
 {
 private:
 	intersectableNode* pHead;
@@ -589,43 +595,51 @@ public:
 	}
 	~intersectableList(void)
 	{
+		std::cout << "ListDestructor" << std::endl;
 		intersectableNode* pCur = this->pHead;
 		intersectableNode* pDel = NULL;
 		while(pCur != NULL)
 		{
 			pDel = pCur;
-			pCur = pCur->pNext;
+			pCur = pCur->getPNext();
 			delete pDel;
 		}
 	}
 	void insertAtFront(intersectable* newObject)
 	{
 		intersectableNode* pNew = new intersectableNode();
-		pNew->object = newObject;
-		pNew->pNext = this->pHead;
-		this->pHead = pNew->pNext;
+		pNew->setObject(newObject);
+		pNew->setPNext(this->pHead);
+		this->pHead = pNew;
 	}
-	intersectableNode* intersects(vector v, double closestIntersection)
+	intersectable* intersects(vector v, double& closestIntersection)
 	{
-		intersectableNode* pIntersect* = NULL;
+		intersectableNode* pIntersect = NULL;
 		intersectableNode* pCur= this->pHead;
-		double newIntersection = 0;
-		double closestIntersection = 0;
+		double newIntersection = -1;
+		closestIntersection = -1;
 		while(pCur != NULL)
 		{
-			newIntersection = pCur->object->intersects(v);
-			if(newIntersection > 0 && newIntersection < closestIntersection)
+			newIntersection = pCur->getObject()->intersects(v);
+			if(newIntersection > 0 && (newIntersection < closestIntersection || closestIntersection == -1))
 			{
-				newIntersection = closestIntersection;
+				closestIntersection = newIntersection;
 				pIntersect = pCur;
 			}
-			pCur = pCur.getPNext();
+			pCur = pCur->getPNext();
 		}
-		return pIntersect;
-
+		if(closestIntersection < 0)
+		{
+			return NULL;
+		}
+		else
+		{
+			return pIntersect->getObject();
+		}
 	}
 
-}
+	
+};
 
 
 class one
@@ -708,11 +722,12 @@ int main(void)
 	
 	restrictedPlane viewPlane;//: = new restrictedPlane();
 				  //
-	sphere omega(point(0,5,0),4);
+	//sphere omega(point(0,5,0),4);
 	plane floor;
-	
+	intersectableList ob;
 	bool updated = true;
-
+	//ob.insertAtFront(new sphere(point(0,8,0),4));
+	//ob.insertAtFront(new sphere(point(2,1,0),2));
 
 		//last four lines are for debugging only REMOVE 
 		/*
@@ -742,21 +757,60 @@ int main(void)
 		sf::Event event;
 		while(window.pollEvent(event))
 		{
-			if(event.type == sf::Event::Closed)
+			switch(event.type)
 			{
+
+			case sf::Event::Closed:
+			{
+				std::cout << "Closing" << std::endl;
 				window.close();
+				break;
 			}
-			if(event.type == sf::Event::KeyPressed)
+
+			case sf::Event::KeyPressed:
 			{
-				if(event.key.code == sf::Keyboard::Escape)
+				switch(event.key.code)
 				{
+
+				case sf::Keyboard::Escape:
+				{
+					std::cout << "Escaping" << std::endl;
 					window.close();
+					break;
+				}	
+				
+				case sf::Keyboard::S:
+				{
+					double x = 0, y = 0, z = 0, r = 0;
+					std::string input;
+					std::cout <<"Sphere Creation" << std::endl << "x=";
+					std::cin >> x;
+					std::cout << "y=";
+					std::cin >> y;
+					std::cout << "z=";
+					std::cin >> z;
+					std::cout << "r=";
+					std::cin >> r;
+					ob.insertAtFront(new sphere(point(x,y,z),r));
+					/*
+					sf::Event text;
+					while(window.pollEvent(text)!=sf::Event::TextEntered)
+					{
+					}
+					input+=event.text.unicode;
+					*/
+					updated = true;
+					break;
 				}
 
+				}
+				break;
 			}
-
+			
+			}
 			if(updated)
 			{
+				std::cout << "Updated"<<std::endl;
 				updated = false;
 
 				
@@ -775,15 +829,21 @@ int main(void)
 					
 					double lightStrength = 1;
 
-					closestIntersection = omega.intersects(v);
-					sf::Color intersectionColor = omega.getColor();
+					//closestIntersection = omega.intersects(v);
+					//sf::Color intersectionColor = omega.getColor();
+					sf::Color intersectionColor;
+					intersectable* intersector = ob.intersects(v,closestIntersection);
+					if(intersector != NULL)
+					{
+						intersectionColor = intersector->getColor();
+					}
 					if(closestIntersection >0)
 					{
 						//closestIntersection is the t for vector v
 						//pos point on shere
 						point pos = pointFromVector(v,closestIntersection);
-						lightStrength = omega.lights(l1);
-						double dirLight = omega.lights(l2, pos);
+						lightStrength = intersector->lights(l1);
+						double dirLight = intersector->lights(l2, pos);
 						if(dirLight>=0)
 						{
 							lightStrength+=dirLight;
