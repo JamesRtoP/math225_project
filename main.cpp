@@ -596,6 +596,10 @@ public:
 	~intersectableList(void)
 	{
 		std::cout << "ListDestructor" << std::endl;
+		this->empty();
+	}
+	void empty(void)
+	{
 		intersectableNode* pCur = this->pHead;
 		intersectableNode* pDel = NULL;
 		while(pCur != NULL)
@@ -611,6 +615,15 @@ public:
 		pNew->setObject(newObject);
 		pNew->setPNext(this->pHead);
 		this->pHead = pNew;
+	}
+	void removeAtFront(void)
+	{
+		if(this->pHead != NULL)
+		{
+			intersectableNode* pDel = this->pHead;
+			this->pHead = this->pHead->getPNext();	
+			delete pDel;
+		}
 	}
 	intersectable* intersects(vector v, double& closestIntersection)
 	{
@@ -637,6 +650,16 @@ public:
 			return pIntersect->getObject();
 		}
 	}
+	void unlinkObjects(void)//should only be used for the displayList (ie a senario where the object is linked elsewhere
+	{
+		intersectableNode* pCur = this->pHead;
+		while(pCur != NULL)
+		{
+			pCur->setObject(NULL);
+			pCur = pCur->getPNext();
+		}
+	}
+
 
 	
 };
@@ -799,6 +822,14 @@ int main(void)
 					}
 					input+=event.text.unicode;
 					*/
+					updated = true;
+					break;
+				}
+				
+				case sf::Keyboard::U:
+				{
+					std::cout << "Delete Object" << std::endl;
+					ob.removeAtFront();
 					updated = true;
 					break;
 				}
