@@ -285,8 +285,6 @@ public:
 
 class plane : public intersectable//restricted plane //using equation a(x-x1)+b(y-y1)+c(z-z1) = 0
 {
-	//int width;
-	//int height;
 private:
 	//directional offsets
 	//also where the plane is "centered" for view port
@@ -492,7 +490,7 @@ public:
 };
 
 
-class intersectableNode
+class intersectableNode//worry about the big 5 later, possibly not necisarry
 {
 private:
 	intersectable* object;
@@ -538,7 +536,6 @@ public:
 	//copy assignment operator
 	intersectableNode& operator= (intersectableNode & copyMe)//hardcopy
 	{
-		//object = new intersectable(*(copyMe.object));
                 pNext = NULL;
 		return *this;
 	}
@@ -703,7 +700,7 @@ double quadraticFormulaUnsafeNegativeRoot(double a, double b, double c)//no chec
 
 
 //I could make it a hash table, that would be pretty fire
-
+//hash by node type
 int main(void)
 {
 	int render_width = 720;
@@ -718,54 +715,17 @@ int main(void)
 
 	sf::Texture screen_t;
 	screen_t.create(rw,rh);
-	//screen_t.loadFromImage(screen);
 	
 	sf::Uint8* pixels = new sf::Uint8[rw*rh*4];
-	
-	/*
-	for(int i = 0; i < rw; i++)//width
-	{
-		for(int j = 0; j < rh; j++)//height
-		{//this goes top to bottom left to right i think
-			for(int i = 0; i<4;i++)
-			{
-				pixels[i*j+i] = 255;
-				pixels[i*j+i] = 255;
-				pixels[i*j+i] = 255;
-				pixels[i*j+i] = 255;
-			}
-		}
-	}
-	*/
 	ambientLight l1(0.5);
 	directionalLight l2(0.5, vector(0,0,-1));	
 	point origin(0,0,0);
 
 	intersectable* objects;
-	
 	restrictedPlane viewPlane;//: = new restrictedPlane();
-				  //
-	//sphere omega(point(0,5,0),4);
 	plane floor;
 	intersectableList ob;
 	bool updated = true;
-	//ob.insertAtFront(new sphere(point(0,8,0),4));
-	//ob.insertAtFront(new sphere(point(2,1,0),2));
-
-		//last four lines are for debugging only REMOVE 
-		/*
-		if(pixelNum %(720*2) == 0)
-		{
-			screen_t.update(pixels);	
-			sf::Sprite screen_s;
-			screen_s.setTexture(screen_t);
-			window.clear();
-			
-			window.draw(screen_s);
-
-			window.display();
-		}
-		*/
 	
 
 
@@ -851,17 +811,13 @@ int main(void)
 					pixels[i+1] = 255;
 					pixels[i+2] = 255;
 					pixels[i+3] = 255;
-					//vector dir = fromTwoPoints(,origin);
 					int pixelNum = i/4;
 					point onViewPlane = viewPlane.calculatePointFromPixel(pixelNum);
 					vector v = fromTwoPoints(origin, onViewPlane);
 					double closestIntersection = -1;
 					bool intersected = false;	
-					
 					double lightStrength = 1;
 
-					//closestIntersection = omega.intersects(v);
-					//sf::Color intersectionColor = omega.getColor();
 					sf::Color intersectionColor;
 					intersectable* intersector = ob.intersects(v,closestIntersection);
 					if(intersector != NULL)
@@ -899,17 +855,10 @@ int main(void)
 
 					if(intersected)
 					{
-						/*
-							pixels[i+0] = 102;
-							pixels[i+1] = 65;
-							pixels[i+2] = 33;
-							pixels[i+3] = 255;
-							*/
 						pixels[i + 0] = intersectionColor.r;
 						pixels[i + 1] = intersectionColor.g;
 						pixels[i + 2] = intersectionColor.b;
 						pixels[i + 3] = 255;
-
 					}
 					else
 					{
