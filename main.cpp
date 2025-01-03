@@ -183,6 +183,7 @@ private:
 protected:
 	double power;
 	lightType type;
+	sf::Color color;
 public:
 	double getPower(void)
 	{
@@ -203,6 +204,7 @@ public:
 	{
 		this->power = newPower;
 		this->type = newType;
+		this->color = sf::Color::White;
 	}
 };
 
@@ -266,12 +268,16 @@ public:
 	}
 	virtual double lights(ambientLight lighting)
 	{
+		return lighting.getPower();
 	}
 	virtual double lights(directionalLight lighting)
 	{
+		return lighting.getPower();
+		
 	}
 	virtual double lights(directionalLight lighting, point disAPoint)
 	{
+		return lighting.getPower();
 	}
 	sf::Color getColor(void)
 	{
@@ -482,11 +488,12 @@ public:
 		double bottom = getMagnitude(lighting.getDir()) + getMagnitude(normalUnit);
 		return top/bottom;
 	}
-
+	/*
 	virtual double lights(ambientLight lighting)
 	{
 		return lighting.getPower();
 	}
+	*/
 };
 
 
@@ -723,9 +730,11 @@ int main(void)
 
 	intersectable* objects;
 	restrictedPlane viewPlane;//: = new restrictedPlane();
-	plane floor;
+	//plane floor;
 	intersectableList ob;
+	ob.insertAtFront(new plane);
 	bool updated = true;
+	intersectableList displayed;
 	
 
 
@@ -801,16 +810,14 @@ int main(void)
 			}
 			if(updated)
 			{
+				displayed.unlinkObjects();
+				displayed.empty();
 				std::cout << "Updated"<<std::endl;
 				updated = false;
 
 				
 				for(int i = 0; i<rw*rh*4; i+=4)
 				{
-					pixels[i+0] = 255;
-					pixels[i+1] = 255;
-					pixels[i+2] = 255;
-					pixels[i+3] = 255;
 					int pixelNum = i/4;
 					point onViewPlane = viewPlane.calculatePointFromPixel(pixelNum);
 					vector v = fromTwoPoints(origin, onViewPlane);
@@ -828,6 +835,7 @@ int main(void)
 					{
 						//closestIntersection is the t for vector v
 						//pos point on shere
+						intersected = true;
 						point pos = pointFromVector(v,closestIntersection);
 						lightStrength = intersector->lights(l1);
 						double dirLight = intersector->lights(l2, pos);
@@ -842,6 +850,7 @@ int main(void)
 						intersectionColor.b = intersectionColor.b *lightStrength;
 						}
 					}
+					/*
 					double nextIntersection = floor.intersects(v);
 					if(closestIntersection < 0||(nextIntersection > 0 && nextIntersection < closestIntersection) )
 					{
@@ -852,7 +861,7 @@ int main(void)
 					{
 						intersected = true;
 					}
-
+					*/
 					if(intersected)
 					{
 						pixels[i + 0] = intersectionColor.r;
