@@ -1,3 +1,6 @@
+#ifndef LIGHT_HPP
+#define LIGHT_HPP
+
 #include "source.hpp"
 #include "basic_geometry.hpp"
 
@@ -38,3 +41,5 @@ public:
 	vector getDir(void);
 	void setDir(vector newDir);
 };
+
+#endif

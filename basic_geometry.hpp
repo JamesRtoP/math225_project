@@ -1,3 +1,6 @@
+#ifndef BASIC_GEOMETRY_HPP
+#define BASIC_GEOMETRY_HPP
+
 #include "source.hpp"
 
 class point
@@ -39,6 +42,7 @@ double dotProduct(vector one, vector two);
 double getMagnitude(vector v);
 vector makeUnitVector(vector v);
 point pointFromVector(vector v, double t);
+vector fromTwoPoints(point from, point to);
 
 class ray
 {
@@ -56,3 +60,5 @@ public:
 	vector getDir(void);
 };
 std::ostream& operator<< (std::ostream& stream, const vector & printMe);
+
+#endif

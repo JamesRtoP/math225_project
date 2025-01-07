@@ -100,7 +100,14 @@ point pointFromVector(vector v, double t)
 {
 	return point(v.getXDir()*t, v.getYDir()*t, v.getZDir()*t);
 }
-
+vector fromTwoPoints(point from, point to)
+{
+	vector returnVector;
+	returnVector.setXDir(to.getx()-from.getx());
+	returnVector.setYDir(to.gety()-from.gety());
+	returnVector.setZDir(to.getz()-from.getz());
+	return returnVector;
+}
 
 void ray::setT(double newT)
 {
