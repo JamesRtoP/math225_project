@@ -9,6 +9,7 @@
 //hash by node type
 int main(void)
 {
+	
 	int render_width = 720;
         int render_height = render_width;
         int& rh = render_height;
@@ -42,7 +43,8 @@ int main(void)
 	screen_s.setTexture(screen_t);
 
 
-
+	//window.setKeyRepeatEnabled(false);	
+	window.setKeyRepeatEnabled(false);
 	while(window.isOpen())
 	{
 		sf::Event event;
@@ -72,8 +74,8 @@ int main(void)
 				
 				case sf::Keyboard::S:
 				{
+					/*
 					double x = 0, y = 0, z = 0, r = 0;
-					std::string input;
 					std::cout <<"Sphere Creation" << std::endl << "x=";
 					std::cin >> x;
 					std::cout << "y=";
@@ -83,14 +85,13 @@ int main(void)
 					std::cout << "r=";
 					std::cin >> r;
 					ob.insertAtFront(new sphere(point(x,y,z),r));
-					/*
-					sf::Event text;
-					while(window.pollEvent(text)!=sf::Event::TextEntered)
-					{
-					}
-					input+=event.text.unicode;
 					*/
-					updated = true;
+
+
+					
+					std::cout << recieveText(window) <<std::endl;
+
+					//updated = true;
 					break;
 				}
 				
@@ -99,6 +100,12 @@ int main(void)
 					std::cout << "Delete Object" << std::endl;
 					ob.removeAtFront();
 					updated = true;
+					break;
+				}
+
+				case sf::Keyboard::R:
+				{
+					std::cout << "R" << std::endl;
 					break;
 				}
 
