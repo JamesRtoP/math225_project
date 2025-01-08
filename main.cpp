@@ -9,11 +9,16 @@
 //hash by node type
 int main(void)
 {
-	
+	sf::RectangleShape commandLine(sf::Vector2f(720,25));
+	commandLine.setPosition(sf::Vector2f(0,720-25));
+	commandLine.setFillColor(sf::Color::White);
+	sf::Text command;
+	sf::Font commandFont;
+
 	int render_width = 720;
-        int render_height = render_width;
-        int& rh = render_height;
-        int& rw = render_width;
+    int render_height = render_width;
+	int& rh = render_height;
+	int& rw = render_width;
 
 	sf::RenderWindow window(sf::VideoMode(rw,rh), "View Port");
 
@@ -170,7 +175,8 @@ int main(void)
 					}
 					//updated = true;
 					std::cout << prompt << std::endl;
-
+					ob.insertAtFront(new sphere(point(parameters[0],parameters[1],parameters[2]),parameters[3]));
+					updated = true;
 					break;
 				}
 				
@@ -270,6 +276,7 @@ int main(void)
 		window.clear();
 		
 		window.draw(screen_s);
+		window.draw(commandLine);
 
 		window.display();
 	}
