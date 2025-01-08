@@ -74,8 +74,8 @@ int main(void)
 				
 				case sf::Keyboard::S:
 				{
+					
 					/*
-					double x = 0, y = 0, z = 0, r = 0;
 					std::cout <<"Sphere Creation" << std::endl << "x=";
 					std::cin >> x;
 					std::cout << "y=";
@@ -88,8 +88,18 @@ int main(void)
 					*/
 
 
-					
-					std::cout << recieveText(window) <<std::endl;
+					double x = 0, y = 0, z = 0, r = 0;
+					std::string gar = recieveText(window);
+					std::cout << gar <<std::endl;
+					if(isDouble(gar))
+					{
+						std::cout << "That is a double" << std::endl;
+					}
+					else
+					{
+						std::cout << "That is not a double" << std::endl;
+					}
+
 
 					//updated = true;
 					break;

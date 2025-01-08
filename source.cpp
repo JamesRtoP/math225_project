@@ -64,3 +64,55 @@ std::string recieveText(sf::Window& window)//will only exit upon a return or esc
 	}
 	return input;
 }
+
+bool isDouble(const std::string& checkMe)
+{
+	bool is_double = true;
+	bool seenDecimal = false;
+	for(int i = 0; checkMe[i] != '\0'; i++)
+	{
+		if(!(isdigit(checkMe[i])||(i == 0 && checkMe[i] == '-')))
+		{
+			if(checkMe[i] =='.')
+			{
+				if(seenDecimal)
+				{
+					is_double = false;
+				}
+				else
+				{
+					seenDecimal = true;
+				}
+			}
+			else
+			{
+				is_double = false;
+			}
+		}
+		
+	}
+	return is_double;
+	
+}
+/*standard library function stod
+double makeDouble(const std::string& makeMeDouble)
+{
+	double returnMe = 0;
+	bool negative = false;
+	bool seenDecimal = false;
+	int i = 0;
+	if(makeMeDouble[0] == '-')
+	{
+		i = 1;
+		negative = -1;
+	}
+	else
+	{
+
+	}
+	for(; makeMeDouble[i] != '\0'; i++)
+	{
+		returnMe = 
+	}
+}
+*/

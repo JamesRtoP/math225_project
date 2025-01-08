@@ -14,7 +14,9 @@ double quadraticFormulaUnsafePositiveRoot(double a, double b, double c);//no che
 double quadraticFormulaUnsafeNegativeRoot(double a, double b, double c);//no check for negative sqrt
 
 
-//
+//text functions
 std::string recieveText(sf::Window& window);//will only exit upon a return or escape
+bool isDouble(const std::string& checkMe);
+//double makeDouble(const std::string& makeMeDouble);
 
 #endif
