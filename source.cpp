@@ -47,7 +47,7 @@ std::string recieveText(sf::Window& window)//will only exit upon a return or esc
 			{
 				if(textEvent.key.code == sf::Keyboard::Escape)
 				{
-					input = "";
+					input = "~";
 					//std::cout <<
 					broken = true;
 				}
@@ -69,27 +69,34 @@ bool isDouble(const std::string& checkMe)
 {
 	bool is_double = true;
 	bool seenDecimal = false;
-	for(int i = 0; checkMe[i] != '\0'; i++)
+	if(checkMe.length() == 0)
 	{
-		if(!(isdigit(checkMe[i])||(i == 0 && checkMe[i] == '-')))
+		is_double = false;
+	}
+	else
+	{
+		for(int i = 0; checkMe[i] != '\0'; i++)
 		{
-			if(checkMe[i] =='.')
+			if(!(isdigit(checkMe[i])||(i == 0 && checkMe[i] == '-')))
 			{
-				if(seenDecimal)
+				if(checkMe[i] =='.')
 				{
-					is_double = false;
+					if(seenDecimal)
+					{
+						is_double = false;
+					}
+					else
+					{
+						seenDecimal = true;
+					}
 				}
 				else
 				{
-					seenDecimal = true;
+					is_double = false;
 				}
 			}
-			else
-			{
-				is_double = false;
-			}
+			
 		}
-		
 	}
 	return is_double;
 	

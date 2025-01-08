@@ -17,6 +17,7 @@ double quadraticFormulaUnsafeNegativeRoot(double a, double b, double c);//no che
 //text functions
 std::string recieveText(sf::Window& window);//will only exit upon a return or escape
 bool isDouble(const std::string& checkMe);
+
 //double makeDouble(const std::string& makeMeDouble);
 
 #endif

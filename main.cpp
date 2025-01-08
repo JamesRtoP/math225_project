@@ -74,34 +74,103 @@ int main(void)
 				
 				case sf::Keyboard::S:
 				{
-					
-					/*
-					std::cout <<"Sphere Creation" << std::endl << "x=";
-					std::cin >> x;
-					std::cout << "y=";
-					std::cin >> y;
-					std::cout << "z=";
-					std::cin >> z;
-					std::cout << "r=";
-					std::cin >> r;
-					ob.insertAtFront(new sphere(point(x,y,z),r));
-					*/
-
-
-					double x = 0, y = 0, z = 0, r = 0;
-					std::string gar = recieveText(window);
-					std::cout << gar <<std::endl;
-					if(isDouble(gar))
+					bool exitSphereCreation = false;
+					bool validInput = false;
+					int parameterIndex = 0;
+					double parameters[4];//x,y,z,r
+					std::string input;
+					std::string prompt = "x = ";
+					while(!exitSphereCreation)
 					{
-						std::cout << "That is a double" << std::endl;
-					}
-					else
-					{
-						std::cout << "That is not a double" << std::endl;
-					}
+						while(!validInput)
+						{
+							//double x = 0, y = 0, z = 0, r = 0;
+							std::cout << prompt << std::endl;
+							input = recieveText(window);
+							std::string token;
+							for(int i = 0; input[i] != '\0'; i++)
+							{
+								if(input == "~")
+								{
+									validInput = true;
+									exitSphereCreation = true;
+								}
+								else if(input[i] != ' ')
+								{
+									token.push_back(input.at(i));
+								}
+								else
+								{
+									if(isDouble(token) && parameterIndex < 4)
+									{
+										parameters[parameterIndex] = stod(token);
+										parameterIndex++;
+										validInput = true;
+									}
+									else
+									{
+										validInput = false;
+										break;
+									}
+									token = "";
+								}
+							}
+							if(isDouble(token) && parameterIndex < 4)
+							{
+								parameters[parameterIndex] = stod(token);
+								parameterIndex++;
+								validInput = true;
+							}
+							else
+							{
+								validInput = false;
+								break;
+							}
+							
+						}
+						std::string frontReplacement = "";
+						prompt = "";
+						if(!exitSphereCreation)
+						{
+							switch(parameterIndex)
+							{
+								case 4:
+								{
+									exitSphereCreation = true;
+									prompt = std::to_string(parameters[3]);
+
+								}
+								case 3:
+								{
+									prompt.insert(0,", r = ");
+									prompt.insert(0,std::to_string(parameters[2]));
+								}
+								case 2:
+								{
+									prompt.insert(0,", z = ");
+									prompt.insert(0,std::to_string(parameters[1]));
+								}
+								case 1:
+								{
+									prompt.insert(0,", y = ");
+									prompt.insert(0,std::to_string(parameters[0]));
+									prompt.insert(0,"x = ");
+									break;
+								}
+								case 0:
+								{
+									prompt = "x = ";
 
 
+
+								}
+							}
+						}
+						validInput = false;
+					}
 					//updated = true;
+					std::cout << prompt << std::endl;
+
 					break;
 				}
 				
