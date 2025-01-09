@@ -12,8 +12,17 @@ int main(void)
 	sf::RectangleShape commandLine(sf::Vector2f(720,25));
 	commandLine.setPosition(sf::Vector2f(0,720-25));
 	commandLine.setFillColor(sf::Color::White);
-	sf::Text command;
 	sf::Font commandFont;
+	if(!commandFont.loadFromFile("./assets/Ginear DEMO.otf"))
+	{
+		std::cout << "Font Failure" << std::endl;
+
+	}
+	sf::Text command("Yes Sire",commandFont);
+	command.setFillColor(sf::Color::Black);
+	command.setPosition(0,720-command.getLocalBounds().height);
+	//command.
+
 
 	int render_width = 720;
     int render_height = render_width;
@@ -277,6 +286,7 @@ int main(void)
 		
 		window.draw(screen_s);
 		window.draw(commandLine);
+		window.draw(command);
 
 		window.display();
 	}
