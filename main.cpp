@@ -2,25 +2,24 @@
 #include "basic_geometry.hpp"
 #include "light.hpp"
 #include "intersectable.hpp"
-
+#include "commandLine.hpp"
+#include "textFunctions.hpp"
 
 
 //I could make it a hash table, that would be pretty fire
 //hash by node type
 int main(void)
 {
+	/*
 	sf::RectangleShape commandLine(sf::Vector2f(720,25));
 	commandLine.setPosition(sf::Vector2f(0,720-25));
 	commandLine.setFillColor(sf::Color::White);
 	sf::Font commandFont;
-	if(!commandFont.loadFromFile("./assets/Ginear DEMO.otf"))
-	{
-		std::cout << "Font Failure" << std::endl;
-
-	}
+	
 	sf::Text command("Yes Sire",commandFont);
 	command.setFillColor(sf::Color::Black);
-	command.setPosition(0,720-command.getLocalBounds().height);
+	command.setPosition(0,720-command.getGlobalBounds().height-command.getGlobalBounds().top);
+	*/
 	//command.
 
 
@@ -36,6 +35,8 @@ int main(void)
 
 	sf::Texture screen_t;
 	screen_t.create(rw,rh);
+
+
 	
 	sf::Uint8* pixels = new sf::Uint8[rw*rh*4];
 	ambientLight l1(0.5);
@@ -50,6 +51,8 @@ int main(void)
 	bool updated = true;
 	intersectableList displayed;
 	
+	commandLine cl;
+	//commandLine wassup;
 
 
 
@@ -89,6 +92,7 @@ int main(void)
 				case sf::Keyboard::S:
 				{
 					bool exitSphereCreation = false;
+					bool createSphere = false;
 					bool validInput = false;
 					int parameterIndex = 0;
 					double parameters[4];//x,y,z,r
@@ -100,7 +104,8 @@ int main(void)
 						{
 							//double x = 0, y = 0, z = 0, r = 0;
 							std::cout << prompt << std::endl;
-							input = recieveText(window);
+							cl.setPrompt(prompt);
+							input = recieveText(window, screen_s, cl);
 							std::string token;
 							for(int i = 0; input[i] != '\0'; i++)
 							{
@@ -152,7 +157,7 @@ int main(void)
 								{
 									exitSphereCreation = true;
 									prompt = std::to_string(parameters[3]);
-
+									createSphere = true;
 								}
 								case 3:
 								{
@@ -174,18 +179,19 @@ int main(void)
 								case 0:
 								{
 									prompt = "x = ";
-
-
-
 								}
 							}
 						}
+						//cl.setPrompt(prompt);
 						validInput = false;
 					}
 					//updated = true;
 					std::cout << prompt << std::endl;
-					ob.insertAtFront(new sphere(point(parameters[0],parameters[1],parameters[2]),parameters[3]));
-					updated = true;
+					if(createSphere == true)
+					{
+						ob.insertAtFront(new sphere(point(parameters[0],parameters[1],parameters[2]),parameters[3]));
+						updated = true;
+					}
 					break;
 				}
 				
@@ -250,18 +256,7 @@ int main(void)
 						intersectionColor.b = intersectionColor.b *lightStrength;
 						}
 					}
-					/*
-					double nextIntersection = floor.intersects(v);
-					if(closestIntersection < 0||(nextIntersection > 0 && nextIntersection < closestIntersection) )
-					{
-						closestIntersection = nextIntersection;
-						intersectionColor = floor.getColor();
-					}
-					if(closestIntersection > 0)
-					{
-						intersected = true;
-					}
-					*/
+				
 					if(intersected)
 					{
 						pixels[i + 0] = intersectionColor.r;
@@ -285,8 +280,11 @@ int main(void)
 		window.clear();
 		
 		window.draw(screen_s);
-		window.draw(commandLine);
-		window.draw(command);
+		//window.draw(wassup.getBackground());
+
+		//window.draw(wassup.getCommandText());
+		//window.draw(commandLine);
+		//window.draw(command);
 
 		window.display();
 	}
