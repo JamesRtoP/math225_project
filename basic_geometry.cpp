@@ -108,6 +108,14 @@ vector fromTwoPoints(point from, point to)
 	returnVector.setZDir(to.getz()-from.getz());
 	return returnVector;
 }
+vector crossProduct(vector v1, vector v2)
+{
+    vector v3;
+    v3.setXDir(v1.getYDir()*v2.getZDir() - v1.getZDir()*v2.getYDir());
+    v3.setYDir(-(v1.getXDir()*v2.getZDir() - v1.getZDir()*v2.getXDir()));
+    v3.setZDir(v1.getXDir()*v2.getYDir() - v1.getYDir()*v2.getXDir());
+    return v3;
+}
 
 void ray::setT(double newT)
 {

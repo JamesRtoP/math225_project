@@ -43,6 +43,7 @@ double getMagnitude(vector v);
 vector makeUnitVector(vector v);
 point pointFromVector(vector v, double t);
 vector fromTwoPoints(point from, point to);
+vector crossProduct(vector v1, vector v2);
 
 class ray
 {
