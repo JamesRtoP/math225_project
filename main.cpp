@@ -21,10 +21,11 @@ int main(void)
 	command.setPosition(0,720-command.getGlobalBounds().height-command.getGlobalBounds().top);
 	*/
 	//command.
+	/*
 	vector pp(1,0,-1);
 	vector ppp(2,3,-1);
 	std::cout << crossProduct(pp,ppp) << std::endl;
-
+*/
 	int render_width = 720;
     int render_height = render_width;
 	int& rh = render_height;

@@ -15,6 +15,11 @@ public:
 	double getx(void) const;
 	double gety(void) const;
 	double getz(void) const;
+	
+	
+	point& operator+(vector displacement);
+	point& operator-(vector displacement);
+
 };
 std::ostream& operator<< (std::ostream& stream, const point & aPoint);
 

@@ -25,6 +25,18 @@ double point::getz(void) const
     return z;
 }
 
+point &point::operator+(vector displacement)
+{
+    point returnMe(this->x+displacement.getXDir(), this->y+displacement.getYDir(),this->z+displacement.getZDir());
+    return returnMe;
+}
+
+point &point::operator-(vector displacement)
+{
+    point returnMe(this->x-displacement.getXDir(), this->y-displacement.getYDir(),this->z-displacement.getZDir());
+    return returnMe;
+}
+
 std::ostream& operator<< (std::ostream& stream, const point & aPoint)
 {
 	stream << "(" << aPoint.getx() <<"," << aPoint.gety() << "," << aPoint.getz() << ")";
